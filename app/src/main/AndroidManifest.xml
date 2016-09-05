@@ -18,10 +18,11 @@
     //Разрешение на определение местоположения
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-feature
         android:glEsVersion="0x00020000"
-        android:required="true"></uses-feature>
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -44,8 +45,10 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapActivity"
-            android:label="@string/title_activity_map">
+            android:name=".view.GeneralActivity"
+            android:label="@string/title_activity_map"
+            android:theme="@style/AppTheme"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -54,9 +57,11 @@
         </activity>
 
         <service
-            android:name=".TrackingService"
+            android:name=".service.TrackingService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+
     </application>
 
 </manifest>
