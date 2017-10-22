@@ -5,19 +5,14 @@ import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.media.session.IMediaSession;
 import android.util.Log;
 
-import com.codcat.geotrack.model.IModel;
-import com.codcat.geotrack.model.Model;
 import com.codcat.geotrack.presenter.IPresenter;
-import com.codcat.geotrack.presenter.Presenter;
+import com.codcat.geotrack.views.main_screen.GeneralActivityPresenter;
 
 public class TrackingService extends Service implements IService {
 
@@ -94,7 +89,7 @@ public class TrackingService extends Service implements IService {
     @Override
     public void writeTrack(Location location, float distance) {
         dbHelper = new DBHelper(getBaseContext());
-        presenter = new Presenter(dbHelper);
-        presenter.writeToDB(location, distance);
+//        presenter = new GeneralActivityPresenter(this);
+//        presenter.writeToDB(location, distance);
     }
 }
