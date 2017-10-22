@@ -3,17 +3,12 @@ package com.codcat.geotrack.service;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
-import android.nfc.tech.IsoDep;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.codcat.geotrack.presenter.IPresenter;
-import com.codcat.geotrack.presenter.Presenter;
-import com.codcat.geotrack.view.IView;
-
-import static java.lang.Math.*;
+import com.codcat.geotrack.views.main_screen.GeneralMvpView;
 
 
 public class MyLocation implements LocationListener {
@@ -27,9 +22,9 @@ public class MyLocation implements LocationListener {
     Location locB;
     float distance = 0;
 
-    public MyLocation(IView ctx){
+    public MyLocation(GeneralMvpView ctx){
         this.context = ctx;
-        this.presenter = new Presenter(ctx);
+//        this.presenter = new GeneralActivityPresenter(ctx);
     }
 
     public MyLocation(IService ctx){
