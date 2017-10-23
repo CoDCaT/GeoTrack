@@ -1,8 +1,7 @@
-package com.codcat.geotrack.service;
+package com.codcat.geotrack.utils;
 
 
 import android.content.Context;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 

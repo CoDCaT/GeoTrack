@@ -1,65 +1,43 @@
 package com.codcat.geotrack.service;
 
-import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
-
-import com.codcat.geotrack.presenter.IPresenter;
-import com.codcat.geotrack.views.main_screen.GeneralMvpView;
 
 
 public class MyLocation implements LocationListener {
 
-    Object context;
-    IPresenter presenter;
-    IService serv;
-    ///////
-    boolean startPoint = false;
-    Location locA;
-    Location locB;
-    float distance = 0;
+    private IService service;
+    private boolean startPoint = false;
+    private Location locA;
+    private Location locB;
+    private float distance = 0;
 
-    public MyLocation(GeneralMvpView ctx){
-        this.context = ctx;
-//        this.presenter = new GeneralActivityPresenter(ctx);
-    }
-
-    public MyLocation(IService ctx){
-        this.context = ctx;
-        this.serv = ctx;
+    public MyLocation(IService service) {
+        this.service = service;
     }
 
     @Override
     public void onLocationChanged(Location location) {
 
-        if (presenter != null) {
-            presenter.refrashPoint(location);
-        }
-
-        //Проверка что Сервис запущен
-        if (serv != null && serv.isServiceRun()){
+        if (service != null && service.isServiceRun()) {
 
             //SDK Рассчет растояния между точками **********************
-            if (!startPoint){
+            if (!startPoint) {
                 startPoint = true;
                 locA = location;
-                serv.writeTrack(location, distance);
-            }else{
+                service.writeTrack(location, distance);
+            } else {
                 locB = location;
                 distance = locA.distanceTo(locB);
                 locA = locB;
-                if (distance > 5)
-                serv.writeTrack(location, distance);
+                if (distance > 5) service.writeTrack(location, distance);
             }
-
 
         }
 
-        Toast.makeText((Context) context, "onLocChang", Toast.LENGTH_SHORT).show();
-        Log.d("LOGTAG", "------- Change: " + location);
+        Log.d("LOGTAG", "------- onLocChang: " + location);
     }
 
     @Override

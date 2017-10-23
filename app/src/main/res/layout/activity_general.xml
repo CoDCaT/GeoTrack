@@ -7,7 +7,7 @@
     android:paddingLeft="0dp"
     android:paddingRight="0dp"
     android:paddingTop="0dp"
-    tools:context="com.codcat.geotrack.views.main_screen.GeneralActivity">
+    tools:context="com.codcat.geotrack.views.GeneralActivity">
 
     <FrameLayout
         android:layout_width="match_parent"

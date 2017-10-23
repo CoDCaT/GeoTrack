@@ -1,4 +1,4 @@
-package com.codcat.geotrack.views.main_screen;
+package com.codcat.geotrack.views;
 
 
 import android.view.MenuItem;

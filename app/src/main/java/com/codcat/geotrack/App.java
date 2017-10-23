@@ -12,6 +12,6 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (appRepository == null) appRepository = new AppRepository();
+        if (appRepository == null) appRepository = new AppRepository(this);
     }
 }

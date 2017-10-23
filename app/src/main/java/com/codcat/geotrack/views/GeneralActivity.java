@@ -1,4 +1,4 @@
-package com.codcat.geotrack.views.main_screen;
+package com.codcat.geotrack.views;
 
 import android.Manifest;
 import android.content.Intent;
@@ -7,34 +7,27 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-
 import com.codcat.geotrack.R;
 import com.codcat.geotrack.service.TrackingService;
-import com.codcat.geotrack.views.map_screen.MapActivity;
+import com.codcat.geotrack.views.map_screen.MapFragment;
+import com.codcat.geotrack.views.tracks_screen.TrackFragment;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
-public class GeneralActivity extends AppCompatActivity implements GeneralMvpView, OnMapReadyCallback {
+public class GeneralActivity extends AppCompatActivity implements GeneralMvpView {
 
     private TrackFragment trackFragment;
-    private Fragment mapFragment;
+    private MapFragment mapFragment;
     private FragmentTransaction fragTrans;
-//    private LocationManager locManager;
-//    private MyLocation locListener = new MyLocation(this);
     private GoogleMap mMap;
-
-    GeneralActivityPresenter<GeneralMvpView> mPresenter;
-
-//    IPresenter presenter;// = new GeneralActivityPresenter(new DBHelper(this), this);
+    private GeneralActivityPresenter<GeneralMvpView> mPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +47,6 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
     }
 
     private void attachFragment() {
-//        locManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         fragTrans = getSupportFragmentManager().beginTransaction();
         trackFragment = new TrackFragment();
         fragTrans.add(R.id.frameLayout, trackFragment, "FRAG_TAG");
@@ -117,12 +109,12 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
     }
 
     @Override
-    public void runService() {
+    public void beginTrack() {
         startService(new Intent(this, TrackingService.class));
     }
 
     @Override
-    public void stopService() {
+    public void stopTrack() {
         stopService(new Intent(this, TrackingService.class));
     }
 
@@ -133,7 +125,7 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
         fragTrans.replace(R.id.frameLayout, trackFragment);
 
         fragTrans.addToBackStack(null);
-        fragTrans.commit();
+        fragTrans.commit(); //TODO: check the second commit
     }
 
     @Override
@@ -142,7 +134,7 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
         fragTrans = getSupportFragmentManager().beginTransaction();
 
         if (mapFragment == null) {
-            mapFragment = Fragment.instantiate(this, MapActivity.class.getName());
+            mapFragment = new MapFragment(); //Fragment.instantiate(this, MapFragment.class.getName());
         }
         fragTrans.replace(R.id.frameLayout, mapFragment);
 
@@ -150,7 +142,6 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
         fragTrans.commit();
     }
 
-    @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 

@@ -1,4 +1,4 @@
-package com.codcat.geotrack.model;
+package com.codcat.geotrack.delete;
 
 
 import android.content.ContentValues;
@@ -7,14 +7,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.util.Log;
 
-import com.codcat.geotrack.service.DBHelper;
+import com.codcat.geotrack.utils.DBHelper;
+import com.codcat.geotrack.data.MyTrack;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.TimeZone;
 
 public class Model implements IModel {
