@@ -1,4 +1,4 @@
-package com.codcat.geotrack.model;
+package com.codcat.geotrack.data;
 
 
 import com.google.android.gms.maps.model.LatLng;

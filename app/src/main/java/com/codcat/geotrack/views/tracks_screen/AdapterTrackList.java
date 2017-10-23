@@ -1,4 +1,4 @@
-package com.codcat.geotrack.views.main_screen;
+package com.codcat.geotrack.views.tracks_screen;
 
 
 import android.content.Context;
@@ -9,16 +9,16 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.codcat.geotrack.R;
-import com.codcat.geotrack.model.MyTrack;
+import com.codcat.geotrack.data.MyTrack;
 
 import java.util.List;
 
-public class MyAdapter extends ArrayAdapter<MyTrack> {
+public class AdapterTrackList extends ArrayAdapter<MyTrack> {
 
     private Context context;
     private List<MyTrack> date;
 
-    public MyAdapter(Context context, int resource, List<MyTrack> data) {
+    public AdapterTrackList(Context context, int resource, List<MyTrack> data) {
         super(context, resource, data);
         this.context = context;
         this.date = data;

@@ -1,9 +1,8 @@
-package com.codcat.geotrack.presenter;
+package com.codcat.geotrack.delete;
 
 import android.location.Location;
 
-import com.codcat.geotrack.model.MyTrack;
-import com.codcat.geotrack.service.DBHelper;
+import com.codcat.geotrack.data.MyTrack;
 
 import java.util.List;
 

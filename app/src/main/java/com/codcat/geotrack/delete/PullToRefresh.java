@@ -1,4 +1,4 @@
-package com.codcat.geotrack.views;
+package com.codcat.geotrack.delete;
 
 import android.content.Context;
 import android.database.DataSetObserver;

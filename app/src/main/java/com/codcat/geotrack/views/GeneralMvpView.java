@@ -1,4 +1,4 @@
-package com.codcat.geotrack.views.main_screen;
+package com.codcat.geotrack.views;
 
 import android.location.Location;
 
@@ -8,12 +8,8 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.List;
 
 public interface GeneralMvpView extends MvpView {
-    void showLocation(Location location);
-    void drowWay(List<LatLng> list);
-    void showDistance(float dictance);
-    void showTracks();
-    void runService();
-    void stopService();
+    void beginTrack();
+    void stopTrack();
     void navigateToTrackList();
     void navigateToMap();
 }
