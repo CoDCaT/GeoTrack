@@ -89,26 +89,6 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
     }
 
     @Override
-    public void showLocation(Location location) {
-
-    }
-
-    @Override
-    public void drowWay(List<LatLng> list) {
-
-    }
-
-    @Override
-    public void showDistance(float dictance) {
-
-    }
-
-    @Override
-    public void showTracks() {
-
-    }
-
-    @Override
     public void beginTrack() {
         startService(new Intent(this, TrackingService.class));
     }
