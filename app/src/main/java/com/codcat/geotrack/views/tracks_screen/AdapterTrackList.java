@@ -30,11 +30,11 @@ public class AdapterTrackList extends ArrayAdapter<MyTrack> {
         //return super.getView(position, convertView, parent);
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View row = inflater.inflate(R.layout.item_list, parent, false);
+        View row = inflater.inflate(R.layout.item2_list, parent, false);
         TextView txtDateTrack = (TextView) row.findViewById(R.id.txtDateTrack);
-        txtDateTrack.setText(date.get(position).getDate());
+        txtDateTrack.setText(context.getString(R.string.txt_date) + date.get(position).getDate());
         TextView txtDistance = (TextView) row.findViewById(R.id.txtDistance);
-        txtDistance.setText(date.get(position).getDistance() + " m");
+        txtDistance.setText(context.getString(R.string.txt_distance) + date.get(position).getDistance() + " m");
 
         return row;
     }

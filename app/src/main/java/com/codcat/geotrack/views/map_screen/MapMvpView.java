@@ -8,7 +8,7 @@ import java.util.List;
 public interface MapMvpView extends MvpView {
 
     void showLocation(Location location);
-    void drowWay(List<LatLng> list);
+    void drawWay(List<LatLng> list);
     void beginTrack();
     void stopTrack();
     void navigateToTrackList();

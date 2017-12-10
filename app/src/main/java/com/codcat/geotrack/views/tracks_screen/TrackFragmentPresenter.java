@@ -4,6 +4,7 @@ import com.codcat.geotrack.App;
 import com.codcat.geotrack.base.BasePresenter;
 import com.codcat.geotrack.data.repository.IRepository;
 import com.codcat.geotrack.data.MyTrack;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
@@ -24,7 +25,9 @@ public class TrackFragmentPresenter<V extends TrackMvpView> extends BasePresente
 
     @Override
     public void onClickItemListTracks(int position) {
-        List<MyTrack> currentTrackList = appRepository.getCurrentTrackList();
+        List<LatLng> points = appRepository.getTrack(0);
+
         getMvpView().showMessage("open track screen!!");
+        getMvpView().goToMap(points);
     }
 }

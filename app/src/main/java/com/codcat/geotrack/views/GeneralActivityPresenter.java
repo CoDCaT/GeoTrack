@@ -1,6 +1,7 @@
 package com.codcat.geotrack.views;
 
 
+import android.location.Location;
 import android.view.MenuItem;
 import com.codcat.geotrack.App;
 import com.codcat.geotrack.base.BasePresenter;
@@ -30,10 +31,12 @@ public class GeneralActivityPresenter<V extends GeneralMvpView> extends BasePres
 
         switch (item.getItemId()) {
             case 1:
-                getMvpView().beginTrack();
+//                getMvpView().beginTrack();
+                repository.setTrackState(true);
                 break;
             case 2:
-                getMvpView().stopTrack();
+//                getMvpView().stopTrack();
+                repository.setTrackState(false);
                 break;
             case 3:
                 getMvpView().navigateToTrackList();
@@ -46,4 +49,5 @@ public class GeneralActivityPresenter<V extends GeneralMvpView> extends BasePres
                 break;
             }
         }
+
 }

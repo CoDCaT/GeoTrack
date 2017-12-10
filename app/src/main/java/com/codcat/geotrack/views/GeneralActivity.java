@@ -1,33 +1,38 @@
 package com.codcat.geotrack.views;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentTransaction;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
 import com.codcat.geotrack.R;
+import com.codcat.geotrack.data.repository.IRepository;
 import com.codcat.geotrack.service.TrackingService;
+import com.codcat.geotrack.views.Router.IRouter;
 import com.codcat.geotrack.views.map_screen.MapFragment;
 import com.codcat.geotrack.views.tracks_screen.TrackFragment;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
-public class GeneralActivity extends AppCompatActivity implements GeneralMvpView {
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
-    private TrackFragment trackFragment;
-    private MapFragment mapFragment;
-    private FragmentTransaction fragTrans;
-    private GoogleMap mMap;
+public class GeneralActivity extends AppCompatActivity implements GeneralMvpView{
+
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.pager) ViewPager mViewPager;
+    @BindView(R.id.tabs) TabLayout tabLayout;
+
     private GeneralActivityPresenter<GeneralMvpView> mPresenter;
+    private PagerAdapter myPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,21 +45,20 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
 
     }
 
-    private void init() {
-
-        attachFragment();
+    @Override
+    protected void onResume() {
+        super.onResume();
 
     }
 
-    private void attachFragment() {
-        fragTrans = getSupportFragmentManager().beginTransaction();
-        trackFragment = new TrackFragment();
-        fragTrans.add(R.id.frameLayout, trackFragment, "FRAG_TAG");
-        fragTrans.commit();
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
-    private void attachPresenter() {
-        mPresenter = new GeneralActivityPresenter<>(this);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -73,19 +77,35 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //слушатели изменения Геопозиции по GPS и интернету **********************************
-        //Параметры: -Тип провайдера,
-        //           -Минимальное время получения координат,
-        //           -Минимальное расстояне получения координат,
-        //           -Слушатль
-        //
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            return;
-//        }
-//        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 5, locListener);
+    private void init() {
+        ButterKnife.bind(this);
+
+        setToolbar();
+        setViewPager();
+    }
+
+    private void setViewPager() {
+
+        Fragment trackFragment = new TrackFragment();
+
+        myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager(), new Fragment[]{trackFragment, new MapFragment(), new SettingsFragment()});
+
+        mViewPager.setAdapter(myPagerAdapter);
+        tabLayout.setupWithViewPager(mViewPager);
+
+        tabLayout.getTabAt(0).setIcon(android.R.drawable.ic_menu_my_calendar);
+        tabLayout.getTabAt(1).setIcon(android.R.drawable.ic_menu_myplaces);
+        tabLayout.getTabAt(2).setIcon(android.R.drawable.ic_menu_edit);
+
+    }
+
+    private void setToolbar() {
+        setSupportActionBar(toolbar);
+    }
+
+
+    private void attachPresenter() {
+        mPresenter = new GeneralActivityPresenter<>(this);
     }
 
     @Override
@@ -100,39 +120,26 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
 
     @Override
     public void navigateToTrackList() {
-        fragTrans = getSupportFragmentManager().beginTransaction();
-
-        fragTrans.replace(R.id.frameLayout, trackFragment);
-
-        fragTrans.addToBackStack(null);
-        fragTrans.commit(); //TODO: check the second commit
+//        fragTrans = getSupportFragmentManager().beginTransaction();
+//
+//        fragTrans.replace(R.id.frameLayout, trackFragment);
+//
+//        fragTrans.addToBackStack(null);
+//        fragTrans.commit(); //TODO: check the second commit
     }
 
     @Override
     public void navigateToMap() {
 
-        fragTrans = getSupportFragmentManager().beginTransaction();
-
-        if (mapFragment == null) {
-            mapFragment = new MapFragment(); //Fragment.instantiate(this, MapFragment.class.getName());
-        }
-        fragTrans.replace(R.id.frameLayout, mapFragment);
-
-        fragTrans.addToBackStack(null);
-        fragTrans.commit();
-    }
-
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-        //Настройки карты *****
-        //
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mMap.setMyLocationEnabled(true);
-        UiSettings settings = mMap.getUiSettings();
-        settings.setMyLocationButtonEnabled(true);
+//        fragTrans = getSupportFragmentManager().beginTransaction();
+//
+//        if (mapFragment == null) {
+//            mapFragment = new MapFragment(); //Fragment.instantiate(this, MapFragment.class.getName());
+//        }
+//        fragTrans.replace(R.id.frameLayout, mapFragment);
+//
+//        fragTrans.addToBackStack(null);
+//        fragTrans.commit();
     }
 
     @Override
@@ -158,5 +165,12 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
     @Override
     public void showMessage(@NonNull String message) {
 
+    }
+
+    public void moveTo(int position, List<LatLng> points) {
+        mViewPager.setCurrentItem(position);
+
+        Fragment mapFragment = getSupportFragmentManager().findFragmentById(R.id.pager);
+//        mapFragment.drawWay(points);
     }
 }
