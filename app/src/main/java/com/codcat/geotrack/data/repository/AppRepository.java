@@ -5,8 +5,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
 import android.util.Log;
 
+import com.codcat.geotrack.App;
+import com.codcat.geotrack.service.IService;
+import com.codcat.geotrack.service.MyLocation;
+import com.codcat.geotrack.service.ServiceMvpPresenter;
 import com.codcat.geotrack.utils.DBHelper;
 import com.codcat.geotrack.data.MyTrack;
 import com.google.android.gms.maps.model.LatLng;
@@ -18,13 +25,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import static android.content.Context.LOCATION_SERVICE;
+
 public class AppRepository implements IRepository {
 
     private DBHelper dbHelper;
     private MyTrack myTrack;
     private List<MyTrack> myTrackList;
 
-    public AppRepository(Context context) {
+
+    public AppRepository() {
+        Context context = App.appContext;
         this.dbHelper = new DBHelper(context);
     }
 
@@ -126,4 +137,24 @@ public class AppRepository implements IRepository {
 
         Log.d("LOGTAG", "Добавлена точка в базу: " + date);
     }
+
+    @Override
+    public boolean getTrackState() {
+        return false;
+    }
+
+    @Override
+    public void setTrackState(boolean state) {
+
+    }
+
+    @Override
+    public List<LatLng> getTrack(int track) {
+
+        List<MyTrack> tracks = getCurrentTrackList();
+        MyTrack myTrack = tracks.get(track);
+
+        return myTrack.getPoint();
+    }
+
 }

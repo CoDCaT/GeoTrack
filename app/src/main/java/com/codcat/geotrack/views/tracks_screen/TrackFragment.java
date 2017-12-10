@@ -9,8 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.codcat.geotrack.App;
 import com.codcat.geotrack.R;
 import com.codcat.geotrack.data.MyTrack;
+import com.codcat.geotrack.views.GeneralActivity;
+import com.codcat.geotrack.views.Router.IRouter;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
@@ -18,8 +23,14 @@ import butterknife.ButterKnife;
 
 public class TrackFragment extends ListFragment implements TrackMvpView {
 
-    private TrackFragmentPresenter<TrackMvpView> mpPresenter;
+    private TrackFragmentPresenter<TrackMvpView> mPresenter;
     private AdapterTrackList adapter;
+    public IRouter router;
+
+
+    void setRouter(IRouter router) {
+        this.router = router;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,11 +42,11 @@ public class TrackFragment extends ListFragment implements TrackMvpView {
     }
 
     private void onAttachPresenter() {
-        mpPresenter = new TrackFragmentPresenter<>(this);
+        mPresenter = new TrackFragmentPresenter<>(this);
     }
 
     private void init() {
-        adapter = new AdapterTrackList(getActivity(), R.layout.item_list, getDataList());
+        adapter = new AdapterTrackList(App.appContext, R.layout.item_list, getDataList());
         setListAdapter(adapter);
     }
 
@@ -53,13 +64,14 @@ public class TrackFragment extends ListFragment implements TrackMvpView {
     }
 
     public List<MyTrack> getDataList(){
-        return mpPresenter.getTracks();
+        return mPresenter.getTracks();
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        mpPresenter.onClickItemListTracks(position);
+        mPresenter.onClickItemListTracks(position);
+
     }
 
     @Override
@@ -87,4 +99,8 @@ public class TrackFragment extends ListFragment implements TrackMvpView {
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void goToMap(List<LatLng> points) {
+        ((GeneralActivity) getActivity()).moveTo(1, points);
+    }
 }

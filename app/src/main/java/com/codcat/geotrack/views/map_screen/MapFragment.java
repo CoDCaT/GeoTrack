@@ -1,6 +1,9 @@
 package com.codcat.geotrack.views.map_screen;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -13,9 +16,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
+import com.codcat.geotrack.App;
 import com.codcat.geotrack.R;
 import com.codcat.geotrack.service.MyLocation;
+import com.codcat.geotrack.service.TrackingService;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,11 +44,16 @@ import butterknife.ButterKnife;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpView {
 
-//    @BindView(R.id.map) MapView mMapView;
+    @BindView(R.id.btnStartTrack) Button btnStartTrack;
+    @BindView(R.id.btnStopTrack) Button btnStopTrack;
+    @BindView(R.id.map) MapView mMapView;
 
-    private MapView mMapView;
+//    private MapView mMapView;
     private GoogleMap googleMap;
-    private MapFragmentPresenter<MapMvpView> mPresenter;
+    private LocationManager locationManager;
+    private MyLocation locationListener;
+    private MapMvpPresenter mPresenter;
+    PendingIntent pi;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,10 +61,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
 
         onAttachPresenter();
 
-    }
 
-    private void onAttachPresenter() {
-        mPresenter = new MapFragmentPresenter<>(this);
+
     }
 
     @Override
@@ -64,9 +74,57 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.activity_map, container, false);
-//        ButterKnife.bind(this, view);
+        ButterKnife.bind(this, view);
 
-        mMapView = (MapView) view.findViewById(R.id.map);
+        init();
+        onAttachMap(savedInstanceState);
+
+        return view;
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMapView.onResume();
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Ловим сообщения о старте задач
+        if (resultCode == 100) {
+            switch (requestCode) {
+                case 1:
+//                    tvTask1.setText("Task1 start");
+                    break;
+            }
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mMapView.onPause();
+        locationManager.removeUpdates(locationListener);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mMapView.onDestroy();
+        locationManager.removeUpdates(locationListener);
+    }
+
+    private void init() {
+        setLocation();
+        setButton();
+    }
+
+    private void onAttachMap(Bundle savedInstanceState) {
         mMapView.onCreate(savedInstanceState);
         //mMapView.onResume(); // needed to get the map to display immediately
 
@@ -77,30 +135,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
         }
 
         mMapView.getMapAsync(this);
-
-        return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mMapView.onResume();
-//        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 5, locListener);
+    private void setButton() {
+
+        btnStartTrack.setOnClickListener(this::onClickButton);
+
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        mMapView.onPause();
-        //       locManager.removeUpdates(locListener);
+    private void onClickButton(View v) {
+
+        mPresenter.onClickButton(v);
+
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mMapView.onDestroy();
-        //       locManager.removeUpdates(locListener);
+    @SuppressLint("MissingPermission")
+    private void setLocation() {
+
+        locationManager = (LocationManager) App.appContext.getSystemService(getActivity().LOCATION_SERVICE);
+        locationListener = new MyLocation(mPresenter);
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
+
     }
+
+    private void onAttachPresenter() {
+        mPresenter = new MapFragmentPresenter<>(this);
+    }
+
 
     @Override
     public void onLowMemory() {
@@ -108,39 +170,58 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
         mMapView.onLowMemory();
     }
 
+    @SuppressLint("MissingPermission")
     @Override
-    public void onMapReady(GoogleMap mMap) {
+    public void onMapReady(GoogleMap geMap) {
 
-        googleMap = mMap;
-
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            return;
-        }
+        googleMap = geMap;
         googleMap.setMyLocationEnabled(true);
 
         // For dropping a marker at a point on the Map
-        LatLng sydney = new LatLng(-34, 151);
-        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
-
-        // For zooming automatically to the location of the marker
-        CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
-        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+//        LatLng sydney = new LatLng(-34, 151);
+//        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
+//
+//        // For zooming automatically to the location of the marker
+//        CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
+//        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     @Override
     public void showLocation(Location location) {
+
+        LatLng point = new LatLng(location.getLatitude(), location.getLongitude());
+        if(googleMap != null) {
+            googleMap.clear();
+            googleMap.addMarker(new MarkerOptions().position(point).title("Это Вы"));
+
+            // For zooming automatically to the location of the marker
+            CameraPosition cameraPosition = new CameraPosition.Builder().target(point).zoom(17).build();
+            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
 
     }
 
     @Override
     public void beginTrack() {
 
+        Intent intent = new Intent(App.appContext, TrackingService.class);
+        // стартуем сервис
+
+        getActivity().startService(intent);
+
+        //TODO: check!!!
+        locationManager.removeUpdates(locationListener);
+
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void stopTrack() {
+        getActivity().stopService(new Intent(getActivity(), TrackingService.class));
 
+        if(locationManager !=  null && locationListener != null){
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
+        }
     }
 
     @Override
@@ -149,10 +230,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
     }
 
     @Override
-    public void drowWay(List<LatLng> list) {
+    public void drawWay(List<LatLng> list) {
 
         if (list.size() == 0){
-            //Toast.makeText(this, "Нет данных о треке!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Нет данных о треке!", Toast.LENGTH_SHORT).show();
             return;
         }
         PolylineOptions line = new PolylineOptions();
