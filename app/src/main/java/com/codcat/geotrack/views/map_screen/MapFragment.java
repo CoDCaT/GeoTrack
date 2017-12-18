@@ -37,12 +37,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpView {
+public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpView, Observer {
 
     @BindView(R.id.btnStartTrack) Button btnStartTrack;
     @BindView(R.id.btnStopTrack) Button btnStopTrack;
@@ -117,6 +119,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
         super.onDestroy();
         mMapView.onDestroy();
         locationManager.removeUpdates(locationListener);
+        locationListener.deleteObserver(this);
     }
 
     private void init() {
@@ -140,6 +143,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
     private void setButton() {
 
         btnStartTrack.setOnClickListener(this::onClickButton);
+        btnStopTrack.setOnClickListener(this::onClickButton);
 
     }
 
@@ -153,7 +157,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
     private void setLocation() {
 
         locationManager = (LocationManager) App.appContext.getSystemService(getActivity().LOCATION_SERVICE);
-        locationListener = new MyLocation(mPresenter);
+        locationListener = MyLocation.getInstance(mPresenter);
+        locationListener.addObserver(this);
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
 
@@ -204,13 +209,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
     @Override
     public void beginTrack() {
 
-        Intent intent = new Intent(App.appContext, TrackingService.class);
-        // стартуем сервис
+        Intent intent = new Intent(App.appContext, TrackingService.class).putExtra("loc", locationListener);
 
         getActivity().startService(intent);
 
+        Toast.makeText(App.appContext, "Start Service", Toast.LENGTH_SHORT).show();
         //TODO: check!!!
-        locationManager.removeUpdates(locationListener);
+//        locationManager.removeUpdates(locationListener);
 
     }
 
@@ -218,10 +223,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
     @Override
     public void stopTrack() {
         getActivity().stopService(new Intent(getActivity(), TrackingService.class));
-
-        if(locationManager !=  null && locationListener != null){
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
-        }
+        Toast.makeText(App.appContext, "Stop Service", Toast.LENGTH_SHORT).show();
+//        if(locationManager !=  null && locationListener != null){
+//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
+//        }
     }
 
     @Override
@@ -239,6 +244,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
         PolylineOptions line = new PolylineOptions();
         line.width(5).color(Color.BLUE);
         LatLngBounds.Builder latLngBuilder = new LatLngBounds.Builder();
+
+        googleMap.clear();
 
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {
@@ -261,10 +268,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
         googleMap.addPolyline(line);
 
         //Вмещаем весь Трэк на экран ************
-        int size = getResources().getDisplayMetrics().widthPixels;
-        LatLngBounds latLngBounds = latLngBuilder.build();
-        CameraUpdate track = CameraUpdateFactory.newLatLngBounds(latLngBounds, size, size, 25);
-        googleMap.moveCamera(track);
+//        int size = getResources().getDisplayMetrics().widthPixels;
+//        LatLngBounds latLngBounds = latLngBuilder.build();
+//        CameraUpdate track = CameraUpdateFactory.newLatLngBounds(latLngBounds, size, size, 25);
+//        googleMap.moveCamera(track);
     }
 
     @Override
@@ -289,6 +296,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
 
     @Override
     public void showMessage(@NonNull String message) {
+
+    }
+
+    @Override
+    public void update(Observable observable, Object location) {
+
+        if (observable instanceof MyLocation) {
+            showLocation((Location) location);
+        }
 
     }
 }

@@ -19,4 +19,6 @@ public interface IRepository {
     void setTrackState(boolean state);
 
     List<LatLng> getTrack(int track);
+
+    List<LatLng> getCurrentTrack();
 }
