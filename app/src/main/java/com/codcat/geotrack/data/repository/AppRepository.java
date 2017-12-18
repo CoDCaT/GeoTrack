@@ -16,6 +16,7 @@ import com.codcat.geotrack.service.MyLocation;
 import com.codcat.geotrack.service.ServiceMvpPresenter;
 import com.codcat.geotrack.utils.DBHelper;
 import com.codcat.geotrack.data.MyTrack;
+import com.codcat.geotrack.utils.SharedPref;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.SimpleDateFormat;
@@ -23,15 +24,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.TimeZone;
 
 import static android.content.Context.LOCATION_SERVICE;
 
-public class AppRepository implements IRepository {
+public class AppRepository extends Observable implements IRepository {
 
     private DBHelper dbHelper;
     private MyTrack myTrack;
     private List<MyTrack> myTrackList;
+    private List<LatLng> currentTrack = new ArrayList<>();
 
 
     public AppRepository() {
@@ -50,8 +54,8 @@ public class AppRepository implements IRepository {
     public List<MyTrack> getListTracks() {
 
         float distance = 0;
-        long date1 = 0;
-        long date2 = 0;
+        int num1 = 0;
+        int num2 = 0;
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor c = db.query("tracks", null, null, null, null, null, null);
@@ -74,26 +78,39 @@ public class AppRepository implements IRepository {
             int latIndex = c.getColumnIndex("lat");
             int lonIndex = c.getColumnIndex("lon");
             int disIndex = c.getColumnIndex("distance");
+            int numberIndex = c.getColumnIndex("track");
 
-            String d1;
+//            int numberTrack = c.getInt(numberIndex);
+
+            String date;
             do {
-                if (date1 == 0){
-                    date1 = c.getLong(dateIndex);
-                    date2 = c.getLong(dateIndex);
+                if (num1 == 0){
+//                    date1 = c.getLong(dateIndex);
+//                    date2 = c.getLong(dateIndex);
+                    num1 = c.getInt(numberIndex);
+                    num2 = c.getInt(numberIndex);
                 }else {
-                    date2 = c.getLong(dateIndex);
+//                    date2 = c.getLong(dateIndex);
+                    num2 = c.getInt(numberIndex);
                 }
 
-                d1 = formating.format(new Date(date1));
-                String d2 = formating.format(new Date(date2));
-                if (d1.equals(d2)){
+                date = formating.format(new Date(c.getLong(dateIndex)));
+//                String d2 = formating.format(new Date(date2));
+
+
+
+//                if (d1.equals(d2)){
+//                    point.add(new LatLng(c.getDouble(latIndex), c.getDouble(lonIndex)));
+//                    distance += c.getFloat(disIndex);
+
+                if (num1 == num2) {
                     point.add(new LatLng(c.getDouble(latIndex), c.getDouble(lonIndex)));
                     distance += c.getFloat(disIndex);
 
-                }else {
-                    myTrack = new MyTrack(d1, String.valueOf(distance), point);
+                } else {
+                    myTrack = new MyTrack(date, String.valueOf(distance), point, num2);
                     myTrackList.add(myTrack);
-                    date1 = date2;
+                    num1 = num2;
                     distance = 0;
                     point = new ArrayList<>();
                 }
@@ -101,7 +118,7 @@ public class AppRepository implements IRepository {
 
             }while (c.moveToNext());
 
-            myTrack = new MyTrack(d1, String.valueOf(distance), point);
+            myTrack = new MyTrack(date, String.valueOf(distance), point, num2);
             myTrackList.add(myTrack);
 
 
@@ -123,6 +140,7 @@ public class AppRepository implements IRepository {
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         ContentValues cv = new ContentValues();
+        int numberTrack = Integer.parseInt(SharedPref.readSharedSetting(App.appContext, "numberTrack", "1"));
 
         long date = new Date().getTime();
         cv.put("date", date);
@@ -130,10 +148,14 @@ public class AppRepository implements IRepository {
         cv.put("lon", location.getLongitude());
         cv.put("alt", location.getAltitude());
         cv.put("distance", distance);
-        cv.put("track", 1); //TODO: fix() track number
+        cv.put("track", numberTrack); //TODO: fix() track number
 
         db.insert("tracks", null, cv);
         dbHelper.close();
+
+        currentTrack.add(new LatLng(location.getLatitude(), location.getLongitude()));
+        setChanged();
+        notifyObservers(currentTrack);
 
         Log.d("LOGTAG", "Добавлена точка в базу: " + date);
     }
@@ -155,6 +177,11 @@ public class AppRepository implements IRepository {
         MyTrack myTrack = tracks.get(track);
 
         return myTrack.getPoint();
+    }
+
+    @Override
+    public List<LatLng> getCurrentTrack() {
+        return currentTrack;
     }
 
 }
