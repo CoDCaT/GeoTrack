@@ -3,6 +3,7 @@ package com.codcat.geotrack.views.tracks_screen;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +32,7 @@ public class AdapterTrackList extends RecyclerView.Adapter<AdapterTrackList.View
     private Context context;
     private List<MyTrack> date;
     private final OnMyListener mListener;
+    private boolean undoOn;
 
 
     public AdapterTrackList(Context context, List<MyTrack> data, OnMyListener mListener) {
@@ -76,10 +78,19 @@ public class AdapterTrackList extends RecyclerView.Adapter<AdapterTrackList.View
         return date.size();
     }
 
+    public void setUndoOn(boolean undoOn) {
+        this.undoOn = undoOn;
+    }
+
+    public boolean isUndoOn() {
+        return undoOn;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
 
         @BindView(R.id.txtDateTrack) TextView txtDateTrack;
         @BindView(R.id.txtDistance) TextView txtDistance;
+        @BindView(R.id.viewForeground) ConstraintLayout viewForeground;
 
 
         public ViewHolder(View itemView) {
@@ -104,4 +115,6 @@ public class AdapterTrackList extends RecyclerView.Adapter<AdapterTrackList.View
         notifyItemMoved(fromPosition, toPosition);
         return true;
     }
+
+
 }
