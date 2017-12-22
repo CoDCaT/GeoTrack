@@ -8,6 +8,7 @@
     android:weightSum="1">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/viewForeground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
