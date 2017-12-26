@@ -1,21 +1,23 @@
 package com.codcat.geotrack.views.tracks_screen;
 
+
 import com.codcat.geotrack.App;
 import com.codcat.geotrack.base.BasePresenter;
 import com.codcat.geotrack.data.repository.IRepository;
 import com.codcat.geotrack.data.MyTrack;
 import com.google.android.gms.maps.model.LatLng;
-
 import java.util.List;
+import javax.inject.Inject;
 
 
 public class TrackFragmentPresenter<V extends TrackMvpView> extends BasePresenter<V> implements TrackMvpPresenter<V> {
 
     private IRepository appRepository;
 
+    @Inject
     public TrackFragmentPresenter(V mvpView) {
         super(mvpView);
-        appRepository = App.appRepository;
+        appRepository = App.getApp().getAppRepository();
     }
 
     @Override

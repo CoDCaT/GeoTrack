@@ -1,5 +1,6 @@
 package com.codcat.geotrack.views;
 
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -7,39 +8,36 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import java.util.List;
 
 import com.codcat.geotrack.R;
-import com.codcat.geotrack.data.repository.IRepository;
 import com.codcat.geotrack.service.TrackingService;
-import com.codcat.geotrack.views.Router.IRouter;
 import com.codcat.geotrack.views.map_screen.MapFragment;
+import com.codcat.geotrack.views.setting_screen.SettingsFragment;
 import com.codcat.geotrack.views.tracks_screen.TrackFragment;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.List;
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.android.support.DaggerAppCompatActivity;
 
-public class GeneralActivity extends AppCompatActivity implements GeneralMvpView{
+public class GeneralActivity extends DaggerAppCompatActivity implements GeneralMvpView{
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.pager) ViewPager mViewPager;
     @BindView(R.id.tabs) TabLayout tabLayout;
 
-    private GeneralActivityPresenter<GeneralMvpView> mPresenter;
-    private PagerAdapter myPagerAdapter;
+    @Inject GeneralActivityPresenter<GeneralMvpView> mPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_general);
-
-        attachPresenter();
 
         init();
 
@@ -63,11 +61,6 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(1, 1, 0, "Начать запись");
-        menu.add(1, 2, 0, "Завершить запись");
-        menu.add(1, 3, 0, "Маршруты");
-        menu.add(1, 4, 0, "Карта");
-        menu.add(1, 5, 0, "Очистить базу");
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -76,6 +69,7 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
         mPresenter.onClickButtonMenu(item);
         return super.onOptionsItemSelected(item);
     }
+
 
     private void init() {
         ButterKnife.bind(this);
@@ -88,7 +82,7 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
 
         Fragment trackFragment = new TrackFragment();
 
-        myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager(), new Fragment[]{trackFragment, new MapFragment(), new SettingsFragment()});
+        PagerAdapter myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager(), new Fragment[]{trackFragment, new MapFragment(), new SettingsFragment()});
 
         mViewPager.setAdapter(myPagerAdapter);
         tabLayout.setupWithViewPager(mViewPager);
@@ -103,10 +97,14 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
         setSupportActionBar(toolbar);
     }
 
-
     private void attachPresenter() {
         mPresenter = new GeneralActivityPresenter<>(this);
     }
+
+    public void moveTo(int position, List<LatLng> points) {
+        mViewPager.setCurrentItem(position);
+    }
+
 
     @Override
     public void beginTrack() {
@@ -120,26 +118,10 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
 
     @Override
     public void navigateToTrackList() {
-//        fragTrans = getSupportFragmentManager().beginTransaction();
-//
-//        fragTrans.replace(R.id.frameLayout, trackFragment);
-//
-//        fragTrans.addToBackStack(null);
-//        fragTrans.commit(); //TODO: check the second commit
     }
 
     @Override
     public void navigateToMap() {
-
-//        fragTrans = getSupportFragmentManager().beginTransaction();
-//
-//        if (mapFragment == null) {
-//            mapFragment = new MapFragment(); //Fragment.instantiate(this, MapFragment.class.getName());
-//        }
-//        fragTrans.replace(R.id.frameLayout, mapFragment);
-//
-//        fragTrans.addToBackStack(null);
-//        fragTrans.commit();
     }
 
     @Override
@@ -165,12 +147,5 @@ public class GeneralActivity extends AppCompatActivity implements GeneralMvpView
     @Override
     public void showMessage(@NonNull String message) {
 
-    }
-
-    public void moveTo(int position, List<LatLng> points) {
-        mViewPager.setCurrentItem(position);
-
-        Fragment mapFragment = getSupportFragmentManager().findFragmentById(R.id.pager);
-//        mapFragment.drawWay(points);
     }
 }

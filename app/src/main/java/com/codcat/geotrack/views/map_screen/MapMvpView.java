@@ -1,5 +1,6 @@
 package com.codcat.geotrack.views.map_screen;
 
+
 import android.location.Location;
 import com.codcat.geotrack.base.MvpView;
 import com.google.android.gms.maps.model.LatLng;
