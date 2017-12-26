@@ -1,4 +1,4 @@
-package com.codcat.geotrack.views;
+package com.codcat.geotrack.views.setting_screen;
 
 
 import android.os.Bundle;

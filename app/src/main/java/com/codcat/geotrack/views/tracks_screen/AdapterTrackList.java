@@ -8,8 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.codcat.geotrack.App;
@@ -27,8 +25,6 @@ import butterknife.ButterKnife;
 
 public class AdapterTrackList extends RecyclerView.Adapter<AdapterTrackList.ViewHolder> implements ItemTouchHelperAdapter {
 
-
-
     private Context context;
     private List<MyTrack> date;
     private final OnMyListener mListener;
@@ -41,24 +37,9 @@ public class AdapterTrackList extends RecyclerView.Adapter<AdapterTrackList.View
         this.mListener = mListener;
     }
 
-
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        //return super.getView(position, convertView, parent);
-//        LayoutInflater inflater = (LayoutInflater) context
-//                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        View row = inflater.inflate(R.layout.item2_list, parent, false);
-//        TextView txtDateTrack = (TextView) row.findViewById(R.id.txtDateTrack);
-//        txtDateTrack.setText(context.getString(R.string.txt_date) + date.get(position).getDate());
-//        TextView txtDistance = (TextView) row.findViewById(R.id.txtDistance);
-//        txtDistance.setText(context.getString(R.string.txt_distance) + date.get(position).getDistance() + " m");
-//
-//        return row;
-//    }
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(App.appContext).inflate(R.layout.item2_list, parent, false);
+        View v = LayoutInflater.from(App.getApp().getAppContext()).inflate(R.layout.item2_list, parent, false);
         return new ViewHolder(v);
     }
 
@@ -91,7 +72,6 @@ public class AdapterTrackList extends RecyclerView.Adapter<AdapterTrackList.View
         @BindView(R.id.txtDateTrack) TextView txtDateTrack;
         @BindView(R.id.txtDistance) TextView txtDistance;
         @BindView(R.id.viewForeground) ConstraintLayout viewForeground;
-
 
         public ViewHolder(View itemView) {
             super(itemView);

@@ -1,10 +1,9 @@
 package com.codcat.geotrack.views;
 
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import com.codcat.geotrack.views.map_screen.MapFragment;
-import com.codcat.geotrack.views.tracks_screen.TrackFragment;
 
 public class MyPagerAdapter extends FragmentPagerAdapter {
 

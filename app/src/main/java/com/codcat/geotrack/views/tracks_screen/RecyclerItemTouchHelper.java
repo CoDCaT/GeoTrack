@@ -1,10 +1,10 @@
 package com.codcat.geotrack.views.tracks_screen;
 
+
 import android.graphics.Canvas;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
-
 
 public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     private RecyclerItemTouchHelperListener listener;

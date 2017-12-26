@@ -1,18 +1,14 @@
 package com.codcat.geotrack.views.map_screen;
 
-import android.Manifest;
+
 import android.annotation.SuppressLint;
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +19,6 @@ import com.codcat.geotrack.App;
 import com.codcat.geotrack.R;
 import com.codcat.geotrack.service.MyLocation;
 import com.codcat.geotrack.service.TrackingService;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -40,30 +35,26 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.android.support.DaggerFragment;
 
-
-public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpView, Observer {
+public class MapFragment extends DaggerFragment implements OnMapReadyCallback, MapMvpView, Observer {
 
     @BindView(R.id.btnStartTrack) Button btnStartTrack;
     @BindView(R.id.btnStopTrack) Button btnStopTrack;
     @BindView(R.id.map) MapView mMapView;
 
-//    private MapView mMapView;
     private GoogleMap googleMap;
     private LocationManager locationManager;
     private MyLocation locationListener;
-    private MapMvpPresenter mPresenter;
-    PendingIntent pi;
+    @Inject MapFragmentPresenter<MapMvpView> mPresenter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        onAttachPresenter();
-
-
 
     }
 
@@ -93,21 +84,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Ловим сообщения о старте задач
-        if (resultCode == 100) {
-            switch (requestCode) {
-                case 1:
-//                    tvTask1.setText("Task1 start");
-                    break;
-            }
-        }
-
-    }
-
-    @Override
     public void onPause() {
         super.onPause();
         mMapView.onPause();
@@ -128,8 +104,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
     }
 
     private void onAttachMap(Bundle savedInstanceState) {
+
         mMapView.onCreate(savedInstanceState);
-        //mMapView.onResume(); // needed to get the map to display immediately
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -156,18 +132,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
     @SuppressLint("MissingPermission")
     private void setLocation() {
 
-        locationManager = (LocationManager) App.appContext.getSystemService(getActivity().LOCATION_SERVICE);
+        locationManager = (LocationManager) App.getApp().getAppContext().getSystemService(getActivity().LOCATION_SERVICE);
         locationListener = MyLocation.getInstance(mPresenter);
         locationListener.addObserver(this);
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
 
     }
-
-    private void onAttachPresenter() {
-        mPresenter = new MapFragmentPresenter<>(this);
-    }
-
 
     @Override
     public void onLowMemory() {
@@ -182,13 +153,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
         googleMap = geMap;
         googleMap.setMyLocationEnabled(true);
 
-        // For dropping a marker at a point on the Map
-//        LatLng sydney = new LatLng(-34, 151);
-//        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
-//
-//        // For zooming automatically to the location of the marker
-//        CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
-//        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     @Override
@@ -209,13 +173,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
     @Override
     public void beginTrack() {
 
-        Intent intent = new Intent(App.appContext, TrackingService.class).putExtra("loc", locationListener);
+        Intent intent = new Intent(App.getApp().getAppContext(), TrackingService.class).putExtra("loc", locationListener);
 
         getActivity().startService(intent);
 
-        Toast.makeText(App.appContext, "Start Service", Toast.LENGTH_SHORT).show();
+        Toast.makeText(App.getApp().getAppContext(), "Start Service", Toast.LENGTH_SHORT).show();
         //TODO: check!!!
-//        locationManager.removeUpdates(locationListener);
 
     }
 
@@ -223,10 +186,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
     @Override
     public void stopTrack() {
         getActivity().stopService(new Intent(getActivity(), TrackingService.class));
-        Toast.makeText(App.appContext, "Stop Service", Toast.LENGTH_SHORT).show();
-//        if(locationManager !=  null && locationListener != null){
-//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
-//        }
+        Toast.makeText(App.getApp().getAppContext(), "Stop Service", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -267,6 +227,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapMvpV
 
         googleMap.addPolyline(line);
 
+        //TODO: add if()
         //Вмещаем весь Трэк на экран ************
 //        int size = getResources().getDisplayMetrics().widthPixels;
 //        LatLngBounds latLngBounds = latLngBuilder.build();

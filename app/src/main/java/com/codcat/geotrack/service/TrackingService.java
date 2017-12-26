@@ -1,8 +1,8 @@
 package com.codcat.geotrack.service;
 
+
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.IntentService;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -11,7 +11,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -19,13 +18,10 @@ import android.widget.Toast;
 import com.codcat.geotrack.App;
 import com.codcat.geotrack.base.MvpView;
 import com.codcat.geotrack.data.repository.IRepository;
-import com.codcat.geotrack.views.map_screen.MapFragmentPresenter;
 import com.codcat.geotrack.views.map_screen.MapMvpPresenter;
-import com.codcat.geotrack.views.map_screen.MapMvpView;
 
 import java.util.Observable;
 import java.util.Observer;
-
 
 public class TrackingService extends Service implements MvpView, Observer {
 
@@ -43,9 +39,6 @@ public class TrackingService extends Service implements MvpView, Observer {
     private MapMvpPresenter mPresenter;
     PendingIntent pi;
 
-//    public TrackingService() {
-//        super("TrackingService");
-//    }
 
     @Override
     public void onCreate() {
@@ -60,7 +53,7 @@ public class TrackingService extends Service implements MvpView, Observer {
         init();
 
         //TODO: test repository after destroy service!!!
-        appRepository = App.appRepository;
+        appRepository = App.getApp().getAppRepository();
 
         if (isServiceWork()){
             return START_REDELIVER_INTENT;
@@ -78,11 +71,6 @@ public class TrackingService extends Service implements MvpView, Observer {
         Log.d("LOGTAG", "Start Service!");
         return START_REDELIVER_INTENT;
     }
-
-//    @Override
-//    protected void onHandleIntent(@Nullable Intent intent) {
-//        locationListener = intent.getParcelableExtra("loc");
-//    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -103,18 +91,6 @@ public class TrackingService extends Service implements MvpView, Observer {
 
         attachPresenter();
         setLocation();
-
-//        for (int i = 0; i < 10; i++) {
-//            try {
-//                Log.d("LOGTAG", "Service............." + i);
-//                Thread.sleep(2000);
-//                if (i == 8){
-//                    Log.d("LOGTAG", "Service debug " + locationListener);
-//                }
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
 
     }
 
@@ -159,8 +135,6 @@ public class TrackingService extends Service implements MvpView, Observer {
     }
 
     public void writeTrack(Location location) {
-
-
 
 //        SDK Рассчет растояния между точками **********************
             if (!startPoint) {
@@ -213,8 +187,7 @@ public class TrackingService extends Service implements MvpView, Observer {
 
     @Override
     public void update(Observable observable, Object location) {
-//        android.os.Debug.waitForDebugger();
         writeTrack((Location) location);
-        Toast.makeText(App.appContext, "Write point to DB", Toast.LENGTH_LONG).show();
+        Toast.makeText(App.getApp().getAppContext(), "Write point to DB", Toast.LENGTH_LONG).show();
     }
 }

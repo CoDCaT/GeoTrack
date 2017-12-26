@@ -1,24 +1,17 @@
 package com.codcat.geotrack.views.tracks_screen;
 
-import android.graphics.Canvas;
+
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,63 +22,32 @@ import com.codcat.geotrack.data.MyTrack;
 import com.codcat.geotrack.utils.OnMyListener;
 import com.codcat.geotrack.utils.SimpleItemTouchHelperCallback;
 import com.codcat.geotrack.views.GeneralActivity;
-import com.codcat.geotrack.views.Router.IRouter;
 import com.google.android.gms.maps.model.LatLng;
-
-import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.android.support.DaggerFragment;
 
-public class TrackFragment extends Fragment implements TrackMvpView, OnMyListener, RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
+
+public class TrackFragment extends DaggerFragment implements TrackMvpView, OnMyListener, RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
     @BindView(R.id.rvTracks) RecyclerView rv;
     @BindView(R.id.txtEmptyTracks) TextView txtEmptyTracks;
     @BindView(R.id.rlTrackScreen) RelativeLayout rlTrackScreen;
 
-
-    private TrackFragmentPresenter<TrackMvpView> mPresenter;
+    @Inject TrackFragmentPresenter<TrackMvpView> mPresenter;
     private AdapterTrackList adapter;
-    public IRouter router;
     private ItemTouchHelper mItemTouchHelper;
     private List<MyTrack> tracks;
 
-
-    void setRouter(IRouter router) {
-        this.router = router;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-    }
-
-    private void onAttachPresenter() {
-        mPresenter = new TrackFragmentPresenter<>(this);
-    }
-
-    private void init() {
-
-//        adapter = new AdapterTrackList(App.appContext, R.layout.item_list, getDataList());
-        tracks = getDataList();
-        adapter = new AdapterTrackList(App.appContext, tracks, this);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(App.appContext);
-        rv.setAdapter(adapter);
-        rv.setLayoutManager(layoutManager);
-
-
-        if (tracks.size() > 0){
-            txtEmptyTracks.setVisibility(View.GONE);
-        }else {
-            txtEmptyTracks.setVisibility(View.VISIBLE);
-        }
-
-        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
-        mItemTouchHelper = new ItemTouchHelper(callback);
-        mItemTouchHelper.attachToRecyclerView(rv);
     }
 
     @Override
@@ -98,41 +60,39 @@ public class TrackFragment extends Fragment implements TrackMvpView, OnMyListene
         View view = inflater.inflate(R.layout.fragment_track, null);
         ButterKnife.bind(this, view);
 
-        onAttachPresenter();
-
         init();
 
         return view;
+    }
+
+    private void init() {
+        setRecyclerViewList();
+    }
+
+    private void setRecyclerViewList() {
+
+        tracks = getDataList();
+        adapter = new AdapterTrackList(App.getApp().getAppContext(), tracks, this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(App.getApp().getAppContext());
+        rv.setAdapter(adapter);
+        rv.setLayoutManager(layoutManager);
+
+        if (tracks.size() > 0){
+            txtEmptyTracks.setVisibility(View.GONE);
+        }else {
+            txtEmptyTracks.setVisibility(View.VISIBLE);
+        }
+
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
+        mItemTouchHelper = new ItemTouchHelper(callback);
+        mItemTouchHelper.attachToRecyclerView(rv);
+
     }
 
     public List<MyTrack> getDataList(){
         return mPresenter.getTracks();
     }
 
-    @Override
-    public boolean isNetworkConnected() {
-        return false;
-    }
-
-    @Override
-    public void showLoading() {
-
-    }
-
-    @Override
-    public void hideLoading() {
-
-    }
-
-    @Override
-    public void onError(@NonNull String message) {
-
-    }
-
-    @Override
-    public void showMessage(@NonNull String message) {
-        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-    }
 
     @Override
     public void goToMap(List<LatLng> points) {
@@ -177,5 +137,31 @@ public class TrackFragment extends Fragment implements TrackMvpView, OnMyListene
             snackbar.setActionTextColor(Color.YELLOW);
             snackbar.show();
         }
+    }
+
+
+    @Override
+    public boolean isNetworkConnected() {
+        return false;
+    }
+
+    @Override
+    public void showLoading() {
+
+    }
+
+    @Override
+    public void hideLoading() {
+
+    }
+
+    @Override
+    public void onError(@NonNull String message) {
+
+    }
+
+    @Override
+    public void showMessage(@NonNull String message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 }
